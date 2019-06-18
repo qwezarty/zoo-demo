@@ -7,3 +7,6 @@ import (
 type AnimalAPIs struct {
 	apps.RestAPIs
 }
+
+// func (a *AnimalAPIs) Get(c *gin.Context) {
+// }
