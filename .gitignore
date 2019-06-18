@@ -1,3 +1,19 @@
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Somthing else
+*.log
+zoo-demo
+dummy
+debug
+*.out
+
+####################### Start Go #############################
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -10,3 +26,28 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+####################### End Go #############################
+
+
+####################### Start Vim #############################
+
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+####################### End Vim #############################
