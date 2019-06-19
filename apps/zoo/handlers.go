@@ -20,7 +20,7 @@ func Get(c *gin.Context) {
 	c.JSON(http.StatusOK, bean)
 }
 
-func Gets(c *gin.Context) {
+func List(c *gin.Context) {
 	var beans = make([]models.Zoo, 0)
 	db.Find(&beans)
 	c.JSON(http.StatusOK, beans)
@@ -55,7 +55,7 @@ func Update(c *gin.Context) {
 	c.JSON(http.StatusOK, bean)
 }
 
-func Remove(c *gin.Context) {
+func Delete(c *gin.Context) {
 	var bean models.Zoo
 	id := c.Param("id")
 	if id == "" {
