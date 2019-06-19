@@ -15,10 +15,10 @@ func Configure(r *gin.Engine, engine *gorm.DB) {
 	apis.Bean = &models.Animal{}
 	apis.Beans = &[]models.Animal{}
 
-	r.GET("/animal", apis.Gets)
+	r.GET("/animal", apis.List)
 	r.GET("/animal/:id", apis.Get)
 
 	r.POST("/animal", apis.Create)
 	r.PUT("/animal/:id", apis.Update)
-	r.DELETE("/animal/:id", apis.Remove)
+	r.DELETE("/animal/:id", apis.Delete)
 }

@@ -1,12 +1,16 @@
 package apps
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"github.com/qwezarty/zoo-demo/models"
 )
 
 var db *gorm.DB
@@ -21,9 +25,59 @@ type RestAPIs struct {
 	Beans interface{}
 }
 
-func (a *RestAPIs) Gets(c *gin.Context) {
-	db.Find(a.Beans)
-	c.JSON(http.StatusOK, a.Beans)
+func (a *RestAPIs) List(c *gin.Context) {
+	q := db
+	if got := c.Query("start_time"); got != "" {
+		t, err := time.Parse(time.RFC3339, got)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("error when parsing time, RFC3339 and url encode is needed: %v", err),
+			})
+			return
+		}
+		q = q.Where("created_at > ?", t)
+	}
+	if got := c.Query("end_time"); got != "" {
+		t, err := time.Parse(time.RFC3339, got)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("error when parsing time, RFC3339 and url encode is needed: %v", err),
+			})
+			return
+		}
+		// qcount = qcount.Where("created_at < ?", t)
+		q = q.Where("created_at < ?", t)
+	}
+	// get pagination infos from query string
+	count, ptoken, psize := 0, 0, 10
+	if got := c.Query("page_token"); got != "" {
+		num, err := strconv.Atoi(got)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "page_token should be a number"})
+			return
+		}
+		ptoken = num
+	}
+	if got := c.Query("page_size"); got != "" {
+		num, err := strconv.Atoi(got)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "page_size should be a number"})
+			return
+		}
+		psize = num
+	}
+
+	q.Find(a.Beans).Count(&count)
+	q.Offset(ptoken * psize).Limit(psize).Find(a.Beans)
+
+	ret := models.Pagination{
+		PageToken: ptoken,
+		PageSize:  psize,
+		TotalSize: count,
+		Body:      a.Beans,
+	}
+
+	c.JSON(http.StatusOK, ret)
 }
 
 func (a *RestAPIs) Get(c *gin.Context) {
@@ -33,12 +87,6 @@ func (a *RestAPIs) Get(c *gin.Context) {
 		return
 	}
 
-	// using reflect to create
-	// bean := reflect.New(a.Model)
-	// db.Where("id = ?", id).First(bean.Interface())
-	//c.JSON(http.StatusOK, bean.Elem().Interface())
-
-	// using beans to create
 	db.Where("id = ?", id).First(a.Bean)
 	c.JSON(http.StatusOK, a.Bean)
 }
@@ -72,7 +120,7 @@ func (a *RestAPIs) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, a.Bean)
 }
 
-func (a *RestAPIs) Remove(c *gin.Context) {
+func (a *RestAPIs) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
