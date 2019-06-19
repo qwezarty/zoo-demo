@@ -2,6 +2,6 @@ package models
 
 type Zoo struct {
 	Base
-	Name     string
-	Location string
+	Name     string `json:"name"`
+	Location string `json:"location"`
 }
