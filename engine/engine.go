@@ -10,15 +10,20 @@ import (
 	"github.com/qwezarty/zoo-demo/models"
 )
 
-func Startup() *gorm.DB {
-	dialect := "sqlite3"
+var Sqlite = "./engine/zoo.db"
 
+func Startup(dialect string, values ...interface{}) *gorm.DB {
 	engine, err := gorm.Open(dialect, getConn(dialect))
 	if err != nil {
 		log.Fatalf("faltal error occour when conn to db: %v", err)
 	}
 
-	return engine.AutoMigrate(&models.Zoo{}, &models.Animal{})
+	if len(values) == 0 {
+		values = append(values, &models.Zoo{})
+		values = append(values, &models.Animal{})
+	}
+
+	return engine.AutoMigrate(values...)
 }
 
 func getConn(dialect string) string {
@@ -26,9 +31,12 @@ func getConn(dialect string) string {
 		dialect = got
 	}
 
-	if dialect == "mssql" {
-		return "xxxxxxxxxxxxxxxxxxxxxx"
+	switch dialect {
+	case "mssql":
+		return "conn string of mssql"
+	case "sqlite3":
+		return Sqlite
+	default:
+		return ""
 	}
-
-	return "./engine/zoo.db"
 }

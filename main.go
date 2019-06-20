@@ -13,7 +13,7 @@ import (
 func main() {
 	// startup all managers
 	var router = gin.Default()
-	var db = engine.Startup()
+	var db = engine.Startup("sqlite3")
 
 	// register all sub-routes
 	apps.Configure(db)
