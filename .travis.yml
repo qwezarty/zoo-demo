@@ -5,6 +5,7 @@ go:
 
 install: 
   - go get -u ./...
+  - go get -u github.com/stretchr/testify
   - sudo apt-get update -qq
   - sudo apt-get install -qq sqlite3
 
