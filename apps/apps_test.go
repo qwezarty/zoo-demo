@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -63,6 +64,7 @@ func TestGet(t *testing.T) {
 	bean := &models.Base{}
 
 	id := mockCreate()
+	defer db.Unscoped().Delete(bean)
 	r, _ = http.NewRequest("GET", "/base/"+id, nil)
 	router.ServeHTTP(w, r)
 
@@ -70,12 +72,11 @@ func TestGet(t *testing.T) {
 	err := json.NewDecoder(w.Body).Decode(bean)
 	assert.Nil(t, err)
 	assert.Equal(t, id, bean.ID)
-
-	db.Unscoped().Delete(bean)
 }
 
 func TestCreate(t *testing.T) {
 	bean := &models.Base{}
+	defer db.Unscoped().Delete(bean)
 
 	data, _ := json.Marshal(bean)
 	r, _ = http.NewRequest("POST", "/base", bytes.NewBuffer(data))
@@ -86,13 +87,12 @@ func TestCreate(t *testing.T) {
 	err := json.NewDecoder(w.Body).Decode(bean)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, bean.ID)
-
-	db.Unscoped().Delete(bean)
 }
 
 func TestUpdate(t *testing.T) {
 	id := mockCreate()
 	bean := &models.Base{ID: id}
+	defer db.Unscoped().Delete(bean)
 
 	data, _ := json.Marshal(bean)
 	r, _ = http.NewRequest("PUT", "/base/"+id, bytes.NewBuffer(data))
@@ -105,13 +105,12 @@ func TestUpdate(t *testing.T) {
 	if bean.UpdatedAt.IsZero() {
 		t.Error("filed not updated")
 	}
-
-	db.Unscoped().Delete(bean)
 }
 
 func TestDelete(t *testing.T) {
 	bean := &models.Base{}
 	id := mockCreate()
+	defer db.Unscoped().Delete(bean)
 
 	r, _ = http.NewRequest("DELETE", "/base/"+id, nil)
 	router.ServeHTTP(w, r)
@@ -122,29 +121,57 @@ func TestDelete(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
+	now := time.Now()
 	records := []*models.Base{
-		{ID: "0b58b99a-91a8-11e9-a956-1c872c7500f4"},
-		{ID: "1f2bdc9f-925e-11e9-8705-1c872c7500f4"},
-		{ID: "25525d58-925e-11e9-8705-1c872c7500f4"},
+		{ID: "8c5b25ae-91a8-11e9-a956-1c872c7500f4", CreatedAt: now.Add(-2 * time.Hour)},
+		{ID: "0b58b99a-91a8-11e9-a956-1c872c7500f4", CreatedAt: now.Add(-1 * time.Hour)},
+		{ID: "1f2bdc9f-925e-11e9-8705-1c872c7500f4", CreatedAt: now.Add(1 * time.Hour)},
+		{ID: "25525d58-925e-11e9-8705-1c872c7500f4", CreatedAt: now.Add(2 * time.Hour)},
 	}
 	for _, rec := range records {
 		db.Create(rec)
 	}
+	defer func() {
+		for _, rec := range records {
+			db.Unscoped().Delete(rec)
+		}
+	}()
 
-	u, _ := url.Parse("/base")
-	params := url.Values{}
-	params.Add("page_token", "1")
-	params.Add("page_size", "2")
-	u.RawQuery = params.Encode()
+	u0, _ := url.Parse("/base")
 
-	r, _ = http.NewRequest("GET", u.String(), nil)
-	router.ServeHTTP(w, r)
+	u1, _ := url.Parse("/base")
+	params1 := url.Values{}
+	params1.Add("page_token", "1")
+	params1.Add("page_size", "3")
+	u1.RawQuery = params1.Encode()
 
-	assert.Equal(t, 200, w.Code)
-	bean := &models.Pagination{}
-	err := json.NewDecoder(w.Body).Decode(bean)
-	assert.Nil(t, err)
-	assert.Equal(t, 2, bean.PageSize)
-	assert.Equal(t, 3, bean.TotalSize)
-	assert.Equal(t, 1, bean.PageToken)
+	u2, _ := url.Parse("/base")
+	params2 := url.Values{}
+	params2.Add("start_time", now.Format(time.RFC3339))
+	u2.RawQuery = params2.Encode()
+
+	testCases := []struct {
+		url   string
+		count int
+		total int
+	}{
+		{url: u0.String(), count: 4, total: 4},
+		{url: u1.String(), count: 1, total: 4},
+		{url: u2.String(), count: 2, total: 2},
+	}
+
+	for _, tc := range testCases {
+		r, _ = http.NewRequest("GET", tc.url, nil)
+		router.ServeHTTP(w, r)
+
+		assert.Equal(t, 200, w.Code)
+
+		bean := &models.Pagination{}
+		err := json.NewDecoder(w.Body).Decode(bean)
+		assert.Nil(t, err)
+		assert.Equal(t, tc.total, bean.TotalSize)
+
+		entities := bean.Body.([]interface{})
+		assert.Equal(t, tc.count, len(entities))
+	}
 }
