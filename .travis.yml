@@ -4,6 +4,7 @@ go:
   - master
 
 install: 
+  - go get -u ./...
   - sudo apt-get update -qq
   - sudo apt-get install -qq sqlite3
 
