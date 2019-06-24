@@ -1,4 +1,4 @@
-package animal
+package animals
 
 import (
 	"github.com/gin-gonic/gin"
@@ -15,10 +15,10 @@ func Configure(r *gin.Engine, engine *gorm.DB) {
 	apis.Bean = &models.Animal{}
 	apis.Beans = &[]models.Animal{}
 
-	r.GET("/animal", apis.List)
-	r.GET("/animal/:id", apis.Get)
+	r.GET("/animals", apis.List)
+	r.GET("/animals/:id", apis.Get)
 
-	r.POST("/animal", apis.Create)
-	r.PUT("/animal/:id", apis.Update)
-	r.DELETE("/animal/:id", apis.Delete)
+	r.POST("/animals", apis.Create)
+	r.PUT("/animals/:id", apis.Update)
+	r.DELETE("/animals/:id", apis.Delete)
 }

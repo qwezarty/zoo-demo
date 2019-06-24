@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/qwezarty/zoo-demo/apps"
-	"github.com/qwezarty/zoo-demo/apps/animal"
-	"github.com/qwezarty/zoo-demo/apps/zoo"
+	"github.com/qwezarty/zoo-demo/apps/animals"
+	"github.com/qwezarty/zoo-demo/apps/zoos"
 	"github.com/qwezarty/zoo-demo/engine"
 )
 
@@ -17,8 +17,8 @@ func main() {
 
 	// register all sub-routes
 	apps.Configure(db)
-	zoo.Configure(router, db)
-	animal.Configure(router, db)
+	zoos.Configure(router, db) // singleton, pass by pointer
+	animals.Configure(router, db)
 
 	log.Fatal(router.Run("0.0.0.0:30096"))
 }

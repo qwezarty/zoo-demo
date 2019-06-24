@@ -1,4 +1,4 @@
-package zoo
+package zoos
 
 import (
 	"net/http"

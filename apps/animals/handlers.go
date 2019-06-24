@@ -1,4 +1,4 @@
-package animal
+package animals
 
 import (
 	"github.com/qwezarty/zoo-demo/apps"

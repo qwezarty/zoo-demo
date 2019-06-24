@@ -1,4 +1,4 @@
-package zoo
+package zoos
 
 import (
 	"github.com/gin-gonic/gin"
@@ -11,10 +11,10 @@ var db *gorm.DB
 func Configure(r *gin.Engine, engine *gorm.DB) {
 	db = engine
 
-	r.GET("/zoo/:id", Get)
-	r.GET("/zoo", List)
+	r.GET("/zoos/:id", Get)
+	r.GET("/zoos", List)
 
-	r.POST("/zoo", Create)
-	r.PUT("/zoo/:id", Update)
-	r.DELETE("/zoo/:id", Delete)
+	r.POST("/zoos", Create)
+	r.PUT("/zoos/:id", Update)
+	r.DELETE("/zoos/:id", Delete)
 }
