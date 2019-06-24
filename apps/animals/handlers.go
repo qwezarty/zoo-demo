@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/qwezarty/zoo-demo/apps"
 	"github.com/qwezarty/zoo-demo/models"
 )
@@ -22,8 +21,6 @@ func (a *AnimalAPIs) Create(c *gin.Context) {
 	}
 
 	// check if zoo existed
-	u, _ := uuid.NewUUID()
-	animal.ID = u.String()
 	db.Where("id = ?", animal.ZooID).First(zoo)
 
 	// create animal if zoo is already existed
@@ -37,16 +34,14 @@ func (a *AnimalAPIs) Create(c *gin.Context) {
 	}
 
 	// else begin a transaction to create both zoo and animal
-	u, _ = uuid.NewUUID()
-	zoo.ID = u.String()
 	zoo.Name = "unnamed"
-	animal.ZooID = zoo.ID
 	tx := db.Begin()
 	if err := db.Create(zoo).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	animal.ZooID = zoo.ID
 	if err := db.Create(animal).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

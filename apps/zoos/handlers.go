@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/qwezarty/zoo-demo/models"
 )
 
@@ -32,9 +31,6 @@ func Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	u, _ := uuid.NewUUID()
-	bean.ID = u.String()
 
 	db.Create(&bean)
 	c.JSON(http.StatusOK, bean)

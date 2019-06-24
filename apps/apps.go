@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/qwezarty/zoo-demo/models"
 )
@@ -107,9 +106,9 @@ func (a *RestAPIs) Create(c *gin.Context) {
 	}
 
 	// using reflect to set id field
-	u, _ := uuid.NewUUID()
-	rv := reflect.ValueOf(a.Bean).Elem()
-	rv.FieldByName("ID").SetString(u.String())
+	// u, _ := uuid.NewUUID()
+	// rv := reflect.ValueOf(a.Bean).Elem()
+	// rv.FieldByName("ID").SetString(u.String())
 
 	if err := db.Create(a.Bean).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
