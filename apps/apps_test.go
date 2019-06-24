@@ -65,6 +65,7 @@ func TestGet(t *testing.T) {
 
 	id := mockCreate()
 	defer db.Unscoped().Delete(bean)
+
 	r, _ = http.NewRequest("GET", "/base/"+id, nil)
 	router.ServeHTTP(w, r)
 

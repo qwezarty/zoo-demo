@@ -67,8 +67,14 @@ func (a *RestAPIs) List(c *gin.Context) {
 		psize = num
 	}
 
-	q.Find(a.Beans).Count(&count)
-	q.Offset(ptoken * psize).Limit(psize).Find(a.Beans)
+	if err := q.Find(a.Beans).Count(&count).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if err := q.Offset(ptoken * psize).Limit(psize).Find(a.Beans).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	ret := models.Pagination{
 		PageToken: ptoken,
@@ -87,7 +93,10 @@ func (a *RestAPIs) Get(c *gin.Context) {
 		return
 	}
 
-	db.Where("id = ?", id).First(a.Bean)
+	if err := db.Where("id = ?", id).First(a.Bean).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, a.Bean)
 }
 
@@ -102,7 +111,10 @@ func (a *RestAPIs) Create(c *gin.Context) {
 	rv := reflect.ValueOf(a.Bean).Elem()
 	rv.FieldByName("ID").SetString(u.String())
 
-	db.Create(a.Bean)
+	if err := db.Create(a.Bean).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, a.Bean)
 }
 
@@ -116,7 +128,10 @@ func (a *RestAPIs) Update(c *gin.Context) {
 		return
 	}
 
-	db.Model(a.Bean).Updates(a.Bean)
+	if err := db.Model(a.Bean).Updates(a.Bean).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, a.Bean)
 }
 
@@ -132,5 +147,8 @@ func (a *RestAPIs) Delete(c *gin.Context) {
 	// db.Delete(&bean)
 
 	// delete permanently
-	db.Unscoped().Delete(a.Bean)
+	if err := db.Unscoped().Delete(a.Bean).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 }
