@@ -20,13 +20,13 @@ func Configure(engine *gorm.DB) {
 }
 
 type RestAPIs struct {
-	// Model interface{}
+	// model and models
 	Bean  interface{}
 	Beans interface{}
 }
 
 func (a *RestAPIs) List(c *gin.Context) {
-	q := db
+	q := db.New()
 	if got := c.Query("start_time"); got != "" {
 		t, err := time.Parse(time.RFC3339, got)
 		if err != nil {
@@ -128,7 +128,15 @@ func (a *RestAPIs) Update(c *gin.Context) {
 		return
 	}
 
+	// update all fields, no need for querying
+	// err := db.Save(a.Bean).Error
+
+	// update changed fields and we should query this record
 	if err := db.Model(a.Bean).Updates(a.Bean).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Where("id = ?", id).First(a.Bean).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
