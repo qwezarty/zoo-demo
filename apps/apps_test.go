@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/qwezarty/zoo-demo/engine"
 	"github.com/qwezarty/zoo-demo/models"
 	"github.com/stretchr/testify/assert"
@@ -53,11 +52,10 @@ func TestMain(m *testing.M) {
 }
 
 func mockCreate() string {
-	u, _ := uuid.NewUUID()
-	bean := &models.Base{ID: u.String()}
+	bean := &models.Base{}
 	db.Create(bean)
 
-	return u.String()
+	return bean.ID
 }
 
 func TestGet(t *testing.T) {
@@ -92,7 +90,8 @@ func TestCreate(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	id := mockCreate()
-	bean := &models.Base{ID: id}
+	now := time.Now()
+	bean := &models.Base{ID: id, CreatedAt: now}
 	defer db.Unscoped().Delete(bean)
 
 	data, _ := json.Marshal(bean)
@@ -103,7 +102,8 @@ func TestUpdate(t *testing.T) {
 	err := json.NewDecoder(w.Body).Decode(bean)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, bean.ID)
-	if bean.UpdatedAt.IsZero() {
+
+	if bean.CreatedAt.Equal(now) {
 		t.Error("filed not updated")
 	}
 }
