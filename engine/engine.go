@@ -13,16 +13,18 @@ import (
 var Sqlite = "./engine/zoo.db"
 
 func Startup(dialect string, values ...interface{}) *gorm.DB {
+	// open connection
 	engine, err := gorm.Open(dialect, getConn(dialect))
 	if err != nil {
+		// give a panic and exit immediately
 		log.Fatalf("faltal error occour when conn to db: %v", err)
 	}
 
+	// sync tables to db
 	if len(values) == 0 {
 		values = append(values, &models.Zoo{})
 		values = append(values, &models.Animal{})
 	}
-
 	return engine.AutoMigrate(values...)
 }
 
