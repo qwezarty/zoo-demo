@@ -79,6 +79,7 @@ func TestCreate(t *testing.T) {
 
 	data, _ := json.Marshal(bean)
 	r, _ = http.NewRequest("POST", "/base", bytes.NewBuffer(data))
+	r.Header.Add("Content-Type", "application/json")
 
 	router.ServeHTTP(w, r)
 
@@ -96,14 +97,16 @@ func TestUpdate(t *testing.T) {
 
 	data, _ := json.Marshal(bean)
 	r, _ = http.NewRequest("PUT", "/base/"+id, bytes.NewBuffer(data))
+	r.Header.Add("Content-Type", "application/json")
 	router.ServeHTTP(w, r)
 
 	assert.Equal(t, 200, w.Code)
+	bean = &models.Base{}
 	err := json.NewDecoder(w.Body).Decode(bean)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, bean.ID)
 
-	if bean.CreatedAt.Equal(now) {
+	if now.UnixNano() != bean.CreatedAt.UnixNano() {
 		t.Error("filed not updated")
 	}
 }
@@ -111,7 +114,6 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	bean := &models.Base{}
 	id := mockCreate()
-	defer db.Unscoped().Delete(bean)
 
 	r, _ = http.NewRequest("DELETE", "/base/"+id, nil)
 	router.ServeHTTP(w, r)
@@ -131,12 +133,8 @@ func TestList(t *testing.T) {
 	}
 	for _, rec := range records {
 		db.Create(rec)
+		defer db.Unscoped().Delete(rec)
 	}
-	defer func() {
-		for _, rec := range records {
-			db.Unscoped().Delete(rec)
-		}
-	}()
 
 	u0, _ := url.Parse("/base")
 
