@@ -18,7 +18,7 @@ ssh -p $PORT $USER@$ADDR <<- EOF
 EOF
 
 ssh -p $PORT $USER@$ADDR <<- EOF
-	cd $GOPATH/src/github.com/qwezarty/zoo-demo && go build ./ && cp ./$NAME ~/$NAME && cp ./engine/zoo.db ~/$NAME/engine
+	cd $GOPATH/src/github.com/qwezarty/$NAME && go build ./ && cp ./$NAME ~/$NAME && cp ./engine/zoo.db ~/$NAME/engine
 EOF
 
 ssh -p $PORT $USER@$ADDR <<- EOF
