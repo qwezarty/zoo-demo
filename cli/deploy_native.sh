@@ -19,9 +19,12 @@ ssh -p $PORT $USER@$ADDR <<- EOF
 		go get -u github.com/qwezarty/$NAME
 	fi
 
-	cd $PROJECT && go build ./ && cp ./$NAME ~/$NAME && cp ./engine/engine.db ~/$NAME/engine
+	cd $PROJECT
+	go build ./ 
+	[[ $? != "0" ]] && exit 1
+	[[ -n \$(pgrep $NAME) ]] && pkill $NAME
+	cp ./$NAME ~/$NAME && cp ./engine/engine.db ~/$NAME/engine
 
 	cd ~/$NAME
-	[[ -n \$(pgrep $NAME) ]] && pkill $NAME
 	nohup ./$NAME >./$NAME.log 2>&1 &
 EOF
