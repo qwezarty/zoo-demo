@@ -10,7 +10,7 @@ import (
 	"github.com/qwezarty/zoo-demo/models"
 )
 
-var Sqlite = "./engine/zoo.db"
+var Sqlite = "./engine/engine.db"
 
 func Startup(dialect string, values ...interface{}) *gorm.DB {
 	// open connection

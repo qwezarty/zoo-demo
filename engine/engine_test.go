@@ -8,13 +8,13 @@ import (
 )
 
 func TestSqlite(t *testing.T) {
-	Sqlite = "./zoo.db"
+	Sqlite = "./engine.db"
 
 	bean := &models.Base{}
 	db := Startup("sqlite3", bean)
 	db.DropTable(bean)
 
-	Sqlite = "./engine/zoo.db"
+	Sqlite = "./engine/engine.db"
 }
 
 func TestGetConn(t *testing.T) {
@@ -23,7 +23,7 @@ func TestGetConn(t *testing.T) {
 		want    string
 	}{
 		{dialect: "mssql", want: "conn string of mssql"},
-		{dialect: "sqlite3", want: "./engine/zoo.db"},
+		{dialect: "sqlite3", want: "./engine/engine.db"},
 		{dialect: "mysql", want: ""},
 	}
 
