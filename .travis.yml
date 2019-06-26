@@ -1,12 +1,16 @@
 language: go
-
 go:
-  - master
-
-install: 
-  - go get -u ./...
-  - go get -u github.com/stretchr/testify
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq sqlite3
-
+- master
+addons:
+    ssh_known_hosts: 66.42.76.102
+before_install:
+- openssl aes-256-cbc -K $encrypted_f02a7f3e42bf_key -iv $encrypted_f02a7f3e42bf_iv
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
+install:
+- go get -u ./...
+- go get -u github.com/stretchr/testify
+- sudo apt-get update -qq
+- sudo apt-get install -qq sqlite3
 script: go test -v ./...
+after_success:
+- sh ./cli/deploy_travis.sh
