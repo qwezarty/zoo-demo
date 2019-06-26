@@ -14,4 +14,4 @@ install:
 - sudo apt-get install -qq sqlite3
 script: go test -v ./...
 after_success:
-- sh ./cli/deploy_travis.sh
+- sh ./cli/deploy_native.sh
