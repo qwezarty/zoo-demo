@@ -12,6 +12,10 @@ type AnimalAPIs struct {
 	apps.RestAPIs
 }
 
+func (a *AnimalAPIs) Hello(c *gin.Context) {
+	c.String(http.StatusOK, "hello from an animal!")
+}
+
 func (a *AnimalAPIs) Create(c *gin.Context) {
 	animal := &models.Animal{}
 	zoo := &models.Zoo{}
