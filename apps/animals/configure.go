@@ -17,7 +17,6 @@ func Configure(r *gin.Engine, engine *gorm.DB) {
 
 	r.GET("/animals", apis.List)
 	r.GET("/animals/:id", apis.Get)
-	r.GET("/greetings/animal", apis.Hello)
 
 	r.POST("/animals", apis.Create)
 	r.PUT("/animals/:id", apis.Update)
