@@ -22,7 +22,7 @@ var w *httptest.ResponseRecorder
 var r *http.Request
 
 func setup() {
-	engine.Sqlite = "../engine/zoo.db"
+	engine.Sqlite = "../engine/engine.db"
 	db = engine.Startup("sqlite3", &models.Base{})
 	Configure(db)
 
