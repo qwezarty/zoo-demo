@@ -22,7 +22,7 @@ ssh -p $PORT $USER@$ADDR <<- EOF
 	cd $PROJECT
 	go build ./ 
 	[[ $? != "0" ]] && exit 1
-	[[ -n \$(pgrep $NAME) ]] && pkill $NAME
+	[[ -n \$(pgrep -u \$(whoami) $NAME) ]] && pkill -u \$(whoami) $NAME
 	cp ./$NAME ~/$NAME && cp ./engine/engine.db ~/$NAME/engine
 
 	cd ~/$NAME
