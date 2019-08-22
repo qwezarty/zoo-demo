@@ -1,30 +1,30 @@
-NAME="zoo-demo"
+name="zoo-demo"
 
-PORT="22"
-USER="qwezarty"
-ADDR="66.42.76.102"
+port="22"
+user="qwezarty"
+addr="66.42.76.102"
 
 GOPATH="/home/qwezarty/Code/go"
-PROJECT="$GOPATH/src/github.com/qwezarty/$NAME"
+project="$GOPATH/src/github.com/qwezarty/$name"
 
 # checking remote dirs...
-ssh -p $PORT $USER@$ADDR <<- EOF
+ssh -qt -p $port $user@$addr <<- EOF
 	export GOPATH=$GOPATH
-	[[ ! -d ~/$NAME ]] && mkdir ~/$NAME
-	[[ ! -d ~/$NAME/engine ]] && mkdir ~/$NAME/engine
+	[[ ! -d ~/$name ]] && mkdir ~/$name
+	[[ ! -d ~/$name/engine ]] && mkdir ~/$name/engine
 
-	if [ -d $PROJECT ]; then
-		cd $PROJECT && git pull
+	if [ -d $project ]; then
+		cd $project && git pull
 	else
-		go get -u github.com/qwezarty/$NAME
+		go get -u github.com/qwezarty/$name
 	fi
 
-	cd $PROJECT
-	go build ./ 
-	[[ $? != "0" ]] && exit 1
-	[[ -n \$(pgrep -u \$(whoami) $NAME) ]] && pkill -u \$(whoami) $NAME
-	cp ./$NAME ~/$NAME && cp ./engine/engine.db ~/$NAME/engine
+	cd $project
+	go build . 
+	[[ $? != "0" ]] && { echo "Exiting with building error"; exit 1; }
+	[[ -n \$(pgrep -u \$(whoami) $name) ]] && pkill -u \$(whoami) $name
+	cp ./$name ~/$name && cp ./engine/engine.db ~/$name/engine
 
-	cd ~/$NAME
-	nohup ./$NAME >./$NAME.log 2>&1 &
+	cd ~/$name
+	nohup ./$name >./$name.log 2>&1 &
 EOF
