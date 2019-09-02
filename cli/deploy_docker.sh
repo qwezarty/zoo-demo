@@ -11,8 +11,12 @@ if [ -z $(docker images -q $name) ]; then
 	echo "  --> Forget to run cli/build_docker.sh first?"
 	echo "  --> Exiting with error..."
 	exit 1
+	# Actually, you can pull it from docker hub if local image is not existed
+	# docker pull qwezarty/$name
 fi
 
+# I'll install docker for you if remote server is Ubuntu
+# Also, ssh public key will be uploaded for convenience
 echo -e "\033[1m==> Resolving remote dependencies...\033[0m"
 if test ! -f $HOME/.ssh/id_rsa.pub; then
 	echo "no ssh key found locally, I'll generate for you"
@@ -40,16 +44,19 @@ ssh -qt -p $port $user@$addr <<- EOF 1>/dev/null
 EOF
 [[ $? != "0" ]] && { echo "  --> Exiting with dependencies solving error..."; exit 1; }
 
+# Exporting docker image to a file
 echo -e "\033[1m==> Compressing...\033[0m"
 cd $project
 docker save -o ./$name.tar $name
 
+# Coping necessary image and files to remote server
 echo -e "\033[1m==> Sending image to remote...\033[0m"
 scp -P $port ./zoo-demo.tar $user@$addr:~/$name
 [[ $? != "0" ]] && { echo "  --> Exiting with scp error..."; exit 1; }
 scp -P $port ./engine/engine.db $user@$addr:~/$name/engine/
 [[ $? != "0" ]] && { echo "  --> Exiting with scp error..."; exit 1; }
 
+# Loading docker image at remote server
 echo -e "\033[1m==> Loading image...\033[0m"
 ssh -qt -p $port $user@$addr <<- EOF 1>/dev/nul
 	if [ ! -z \$(docker ps -aq --filter ancestor="$name") ]; then
@@ -60,6 +67,7 @@ ssh -qt -p $port $user@$addr <<- EOF 1>/dev/nul
 EOF
 [[ $? != "0" ]] && { echo "  --> Exiting with loading error..."; exit 1; }
 
+# Starting new container, you need to modify port-redirection and volume mount
 echo -e "\033[1m==> Starting new container...\033[0m"
 ssh -qt -p $port $user@$addr <<- EOF 1>/dev/null
 	docker run --restart always -d -p 30097:30096 \
