@@ -11,6 +11,7 @@ zoo-demo
 dummy
 debug
 *.out
+.DS_Store
 
 ####################### Start Go #############################
 

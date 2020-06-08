@@ -38,8 +38,8 @@ ssh -qt -p $port $user@$addr <<- EOF 1>/dev/null
 		sudo apt-get install -y docker.io
 	fi
 	# add current user to docker group
-	if groups \$USER | grep &>/dev/null '\bdocker\b'; then
-		sudo usermod -aG docker \$USER
+	if ! groups \$USER | grep &>/dev/null '\bdocker\b'; then
+		sudo -S usermod -aG docker \$USER
 	fi
 EOF
 [[ $? != "0" ]] && { echo "  --> Exiting with dependencies solving error..."; exit 1; }
