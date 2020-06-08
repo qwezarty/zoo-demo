@@ -3,9 +3,10 @@ FROM golang
 COPY . /go/src/github.com/qwezarty/zoo-demo
 
 RUN set -ex; \
-	export GO111MODULE=on; \
-	export GOPROXY=https://goproxy.io; \
-	cd $GOPATH/src/github.com/qwezarty/zoo-demo; \
-	go get .; \
+	go env -w GO111MODULE=on; \
+	go env -w GOPROXY="https://goproxy.io,direct"; \
+	cd /go/src/github.com/qwezarty/atomsrv; \
+	go mod init; \
+	go get -u -v ./...; \
 	go build .;
 
